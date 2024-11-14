@@ -15,6 +15,7 @@ def add_flight(flight_id, destination_id, departure_date, departure_time, status
     connect.commit()
     connect.close()
 
+# Need to fix this function since it is not updating the updated flight
 def update_flight_information(flight_id=None, new_flight_id=None, destination_id=None, departure_date=None, 
                               departure_time=None, status=None, pilot_id=None):
     connect = connect_db()
@@ -22,12 +23,12 @@ def update_flight_information(flight_id=None, new_flight_id=None, destination_id
     update_version = []
     value = []
 
-    new_flight_id = input("Enter a new flight id: ")
-    new_destination_id = input("Enter a new destination id: ")
-    new_departure_date = input("Enter a departure date: ")
-    new_departure_time = input("Enter a new departure time: ")
-    new_status = input("Enter a status: ")
-    new_pilot_id = input("Enter a new pilot id : ")
+    new_flight_id = input("Enter a new flight id: ").strip()
+    new_destination_id = input("Enter a new destination id: ").strip()
+    new_departure_date = input("Enter a departure date: ").strip()
+    new_departure_time = input("Enter a new departure time: ").strip()
+    new_status = input("Enter a status: ").strip()
+    new_pilot_id = input("Enter a new pilot id : ").strip()
 
     if new_flight_id:
         update_version.append("flight_id = ?")
@@ -58,22 +59,97 @@ def update_flight_information(flight_id=None, new_flight_id=None, destination_id
 
     connect.close()
 
+def assign_pilot():
+    flight_id = input("Enter the flight id you want to assign the pilot: ").strip()
+    pilot_id = input("Enter the pilot id: ").strip()
+    connect = connect_db()
+    cursor = connect.cursor()
+
+
+    #Check if flight id exist
+    cursor.execute("SELECT flight_id FROM flights WHERE flight_id = ?", (flight_id,))
+    if cursor.fetchone() is None: 
+        print(f"The flight id of {flight_id} is invalid")
+        connect.close()
+        return 
+
+    #Check if pilot  id exist
+    cursor.execute("SELECT flight_id FROM flights WHERE pilot_id = ?", (pilot_id,))
+    if cursor.fetchone() is None: 
+        print(f"The pilot id of {pilot_id} is invalid")
+        connect.close()
+        return 
+
+    #Update the pilot id for the assign flight 
+    cursor.execute("UPDATE flights SET pilot_id = ? WHERE flight_id = ?", (pilot_id, flight_id))
+    connect.commit()
+
+    if cursor.rowcount > 0:
+        print(f"Pilot id {pilot_id} has been assigned to flight id {flight_id}")
+    else:
+        print("Fail to assign")
 
 
 
-# Function to search for flights by destination
-def search_flights_by_destination(destination_name):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute('''SELECT flights.flight_id, destinations.name, flights.departure_date, flights.departure_time, flights.status, pilots.name
-                      FROM flights
-                      JOIN destinations ON flights.destination_id = destinations.destination_id
-                      JOIN pilots ON flights.pilot_id = pilots.pilot_id
-                      WHERE destinations.name = ?''', (destination_name,))
-    rows = cursor.fetchall()
-    for row in rows:
-        print(row)
-    conn.close()
+#View pilot schedule
+def pilot_schedule():
+    pilot_id = input("Enter the pilot id to check the schedule: ").strip()
+    connect = connect_db()
+    cursor = connect.cursor()
+    cursor.execute("SELECT flight_id, destination_id, departure_date, departure_time, status FROM flights WHERE pilot_id = ? ORDER BY departure_date, departure_time", (pilot_id,))
+    schedule = cursor.fetchall()
+    for flight in schedule:
+        print(f"Flight ID: {flight[0]}, Destination ID: {flight[1]}, Departure Date: {flight[2]}, Departure Time: {flight[3]}, Status: {flight[4]}")
+
+    connect.close()
+
+
+def view_update_destination():
+    user = input ("Press v to view and u to update: ").lower().strip()
+    connect = connect_db()
+    cursor = connect.cursor()
+
+    if user == 'v':
+        destination_id = input("Enter the destination id: ")
+        cursor.execute("SELECT * FROM destinations WHERE destination_id = ?", destination_id,)
+        destination_info = cursor.fetchone()
+
+        print(f"Destination Information ID: {destination_id}")
+        print(f"Destination Name: {destination_info[1]}")
+        print(f"Country: {destination_info[2]}")
+        print(f"Destination Airport Code: {destination_info[3]}")
+
+    elif user == 'u':
+        destination_id = input("Enter the Destination ID to update: ").strip()
+        cursor.execute("SELECT * FROM destinations WHERE destination_id = ?", (destination_id,))
+        destination = cursor.fetchone()
+
+        new_name = input("Enter the new name: ")
+        new_country = input("Enter the new country: ")
+        new_code = input("Enter the new code: ")
+
+        update = []
+        value = []
+
+        if new_name:
+            update.append("name = ?")
+            value.append(new_name)
+        if new_country:
+            update.append("country = ?")
+            value.append(new_country)
+        if new_code:
+            update.append("airport_code = ?")
+            value.append(new_code)
+
+
+        if update:
+            value.append(destination_id) 
+            cursor.execute(f"UPDATE destinations SET {', '.join(update)} WHERE destination_id = ?", value)
+            connect.commit()
+        else:
+            print("No changes occured")
+
+        connect.close()
 
 # This function create a command line interface
 def command_line_interface():
@@ -82,11 +158,13 @@ def command_line_interface():
         print("\n--- Flight Management System ---")
         print("1. Add a new Flight")
         print("2. Update Flight Information")
+        print("3. Assign Pilot to Flight")
         print("4. Show All Destinations")
         print("5. Show All Pilots")
         print("6. Show All Flights")
-        print("7. Search Flights by Destination")
-        print("8. Exit")
+        print("7. Pilot Schedule")
+        print("8. View/Update Destination Information")
+        print("10. Exit")
         
         choice = input("Enter your choice: ")
         
@@ -103,6 +181,9 @@ def command_line_interface():
         
         elif choice == "2":
             update_flight_information()
+
+        elif choice == "3":
+            assign_pilot()
 
         
         #Display all the destinations
@@ -135,12 +216,13 @@ def command_line_interface():
                 print(row)
             connect.close()
             
-        
         elif choice == "7":
-            destination_name = input("Enter destination name: ")
-            search_flights_by_destination(destination_name)
-        
+            pilot_schedule()
+
         elif choice == "8":
+            view_update_destination()
+        
+        elif choice == "9":
             print("Goodbye!")
             break
         
