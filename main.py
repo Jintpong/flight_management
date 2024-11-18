@@ -18,18 +18,18 @@ def add_flight( origin_airport_id, destination_airport_id, departure_date, depar
     print("Flight has been added")
     connect.close()
 
-
+#This function is use to update flight information
 def update_flight_information():
     connect = connect_db()
     cursor = connect.cursor()
 
-    # Prompt for the flight ID to update
+    
     flight_id = input("Enter the flight ID to update: ").strip()
 
     update_version = []
     value = []
 
-    # Prompt user for new values
+    
     new_origin_airport_id = input("Enter a new origin airport ID : ").strip()
     new_destination_airport_id = input("Enter a new destination airport ID : ").strip()
     new_departure_date = input("Enter a new departure date (YYYY-MM-DD) ): ").strip()
