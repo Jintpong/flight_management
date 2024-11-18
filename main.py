@@ -202,21 +202,49 @@ def command_line_interface():
     
     while True:
         print("\n--- Flight Management System ---")
-        print("1. Add a new Flight")
-        print("2. Update Flight Information")
-        print("3. Assign Pilot to Flight")
-        print("4. Show All Destinations")
-        print("5. Show All Pilots")
-        print("6. Show All Flights")
+        print("1. Show All Destinations")
+        print("2. Show All Pilots")
+        print("3. Show All Flights")
+        print("4. Add a new Flight")
+        print("5. Update Flight Information")
+        print("6. Assign Pilot to Flight")
         print("7. Pilot Schedule")
         print("8. View/Update Destination Information")
         print("9. View Flights by Criteria")
         print("10. Exit")
         
         choice = input("Enter your choice: ").strip()
-        
-        
+
         if choice == "1":
+            connect = connect_db()
+            cursor = connect.cursor()
+            cursor.execute("SELECT * FROM airports")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
+            connect.close()
+
+        #Display all the pilots 
+        elif choice == "2":
+            connect = connect_db()
+            cursor = connect.cursor()
+            cursor.execute("SELECT * FROM pilots")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
+            connect.close()
+
+        #Display all the flights 
+        elif choice == "3":
+            connect = connect_db()
+            cursor = connect.cursor()
+            cursor.execute("SELECT * FROM flights")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
+            connect.close()
+        
+        elif choice == "4":
             #flight_id = int(input("Enter flight ID: ").strip())
             origin_airport_id = int(input("Enter origin airport ID: ").strip())
             destination_airport_id = int(input("Enter destination airport ID: ").strip())
@@ -228,42 +256,11 @@ def command_line_interface():
             add_flight(origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time, status, pilot_id)
             
         
-        elif choice == "2":
+        elif choice == "5":
             update_flight_information()
 
-        elif choice == "3":
-            assign_pilot()
-
-        
-        #Display all the destinations
-        elif choice == "4":
-            connect = connect_db()
-            cursor = connect.cursor()
-            cursor.execute("SELECT * FROM airports")
-            rows = cursor.fetchall()
-            for row in rows:
-                print(row)
-            connect.close()
-        
-        #Display all the pilots 
-        elif choice == "5":
-            connect = connect_db()
-            cursor = connect.cursor()
-            cursor.execute("SELECT * FROM pilots")
-            rows = cursor.fetchall()
-            for row in rows:
-                print(row)
-            connect.close()
-        
-        #Display all the flights 
         elif choice == "6":
-            connect = connect_db()
-            cursor = connect.cursor()
-            cursor.execute("SELECT * FROM flights")
-            rows = cursor.fetchall()
-            for row in rows:
-                print(row)
-            connect.close()
+            assign_pilot()
             
         elif choice == "7":
             pilot_schedule()
