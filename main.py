@@ -126,7 +126,7 @@ def view_update_destination():
 
     if user == 'v':
         destination_airport_id = input("Enter the destination airport id: ")
-        cursor.execute("SELECT * FROM airports WHERE airport_id = ?", destination_airport_id,)
+        cursor.execute("SELECT * FROM airports WHERE airport_id = ?", (destination_airport_id,))
         destination_info = cursor.fetchone()
 
         if destination_info:
