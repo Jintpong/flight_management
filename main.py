@@ -114,14 +114,36 @@ def update_flight_information():
 
     update_version = []
     value = []
-
-    
+    #Show origin ID and let user enter
+    print("Available Origin Airport: ")
+    cursor.execute("SELECT airport_id, name FROM airports")
+    origin_airports = cursor.fetchall()
+    for i in origin_airports:
+        print(f"ID: {i[0]}, Name: {i[1]}")
     new_origin_airport_id = input("Enter a new origin airport ID : ").strip()
+
+    print("Available Destination Airport: ")
+    cursor.execute("SELECT airport_id, name FROM airports")
+    origin_airports = cursor.fetchall()
+    for i in origin_airports:
+        print(f"ID: {i[0]}, Name: {i[1]}")
     new_destination_airport_id = input("Enter a new destination airport ID : ").strip()
-    new_departure_date = input("Enter a new departure date (YYYY-MM-DD) ): ").strip()
+
+
+    new_departure_date = input("Enter a new departure date (YYYY-MM-DD) : ").strip()
     new_departure_time = input("Enter a new departure time (HH:MM) : ").strip()
     new_arrival_time = input("Enter a new arrival time (HH:MM) : ").strip()
+
+    #Show the available status
+    available_status = ["On Time", "Delayed", "Cancelled"]
+    for i in available_status:
+        print(f"The available status are: {i} ")
     new_status = input("Enter a new status : ").strip()
+
+    cursor.execute("SELECT pilot_id, name, flight_hours FROM pilots")
+    pilot = cursor.fetchall()
+    for i in pilot:
+        print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")
     new_pilot_id = input("Enter a new pilot ID : ").strip()
 
     # Check each input and append the corresponding SQL clause and value
@@ -161,10 +183,20 @@ def update_flight_information():
 
 
 def assign_pilot():
-    flight_id = input("Enter the flight id you want to assign the pilot: ").strip()
-    pilot_id = input("Enter the pilot id: ").strip()
     connect = connect_db()
     cursor = connect.cursor()
+
+    cursor.execute("SELECT flight_id FROM flights")
+    flight = cursor.fetchall()
+    for i in flight:
+        print(f"The available flight ID are: {i[0]}")
+    flight_id = input("Enter the flight id you want to assign the pilot: ").strip()
+
+    cursor.execute("SELECT pilot_id, name, flight_hours FROM pilots")
+    pilot = cursor.fetchall()
+    for i in pilot:
+        print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")
+    pilot_id = input("Enter the pilot id: ").strip()
 
 
     #Check if flight id exist
@@ -194,9 +226,16 @@ def assign_pilot():
 
 #View pilot schedule
 def pilot_schedule():
-    pilot_id = input("Enter the pilot id to check the schedule: ").strip()
     connect = connect_db()
     cursor = connect.cursor()
+
+    cursor.execute("SELECT pilot_id, name, flight_hours FROM pilots")
+    pilot = cursor.fetchall()
+
+    for i in pilot:
+        print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")    
+    pilot_id = input("Enter the pilot id to check the schedule: ").strip()
+
     cursor.execute("SELECT flight_id, origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time, status FROM flights WHERE pilot_id = ? ORDER BY departure_date, departure_time", (pilot_id,))
     schedule = cursor.fetchall()
     for flight in schedule:
@@ -211,6 +250,11 @@ def view_update_destination():
     cursor = connect.cursor()
 
     if user == 'v':
+        print("Available Destination Airport: ")
+        cursor.execute("SELECT airport_id, name FROM airports")
+        origin_airports = cursor.fetchall()
+        for i in origin_airports:
+            print(f"ID: {i[0]}, Name: {i[1]}")        
         destination_airport_id = input("Enter the destination airport id: ")
         cursor.execute("SELECT * FROM airports WHERE airport_id = ?", (destination_airport_id,))
         destination_info = cursor.fetchone()
@@ -224,6 +268,11 @@ def view_update_destination():
             print("No destination airport ID was found")
 
     elif user == 'u':
+        print("Available Destination Airport: ")
+        cursor.execute("SELECT airport_id, name FROM airports")
+        origin_airports = cursor.fetchall()
+        for i in origin_airports:
+            print(f"ID: {i[0]}, Name: {i[1]}")        
         destination_airport_id = input("Enter the Destination airport ID to update: ").lower().strip()
         cursor.execute("SELECT * FROM airports WHERE airport_id = ?", (destination_airport_id,))
         destination = cursor.fetchone()
@@ -365,13 +414,42 @@ def command_line_interface():
             connect.close()
         
         elif choice == "4":
+            connect = connect_db()
+            cursor = connect.cursor()
             #flight_id = int(input("Enter flight ID: ").strip())
+            #Show the available origin airport
+            print("Available Origin Airport: ")
+            cursor.execute("SELECT airport_id, name FROM airports")
+            origin_airports = cursor.fetchall()
+            for i in origin_airports:
+                print(f"ID: {i[0]}, Name: {i[1]}")
             origin_airport_id = int(input("Enter origin airport ID: ").strip())
+
+            #Show the available destination airport
+            print("Available Destination Airport: ")
+            cursor.execute("SELECT airport_id, name FROM airports")
+            origin_airports = cursor.fetchall()
+            for i in origin_airports:
+                print(f"ID: {i[0]}, Name: {i[1]}")
             destination_airport_id = int(input("Enter destination airport ID: ").strip())
+
+
             departure_date = input("Enter departure date (YYYY-MM-DD): ".strip())
             departure_time = input("Enter departure time (HH:MM): ".strip())
             arrival_time = input("Enter arrival time (HH:MM): ".strip())
+
+            #Show the available status
+            available_status = ["On Time", "Delayed", "Cancelled"]
+            for i in available_status:
+                print(f"The available status are: {i} ")
+
             status = input("Enter flight status: ")
+
+            #Show the available pilot
+            cursor.execute("SELECT pilot_id, name, flight_hours FROM pilots")
+            pilot = cursor.fetchall()
+            for i in pilot:
+                print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")
             pilot_id = int(input("Enter pilot ID: ").strip())
             add_flight(origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time, status, pilot_id)
             
