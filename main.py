@@ -219,6 +219,11 @@ def command_line_interface():
             connect = connect_db()
             cursor = connect.cursor()
             cursor.execute("SELECT * FROM airports")
+            
+            #Include columns name
+            column_name = [description[0] for description in cursor.description]
+            print("|".join(column_name))
+
             rows = cursor.fetchall()
             for row in rows:
                 print(row)
@@ -229,6 +234,12 @@ def command_line_interface():
             connect = connect_db()
             cursor = connect.cursor()
             cursor.execute("SELECT * FROM pilots")
+
+            #Include columns name
+            column_name = [description[0] for description in cursor.description]
+            print("|".join(column_name))
+
+
             rows = cursor.fetchall()
             for row in rows:
                 print(row)
@@ -238,7 +249,30 @@ def command_line_interface():
         elif choice == "3":
             connect = connect_db()
             cursor = connect.cursor()
-            cursor.execute("SELECT * FROM flights")
+            cursor.execute("""SELECT 
+            flights.flight_id, 
+            flights.origin_airport_id, 
+            origin_airport.name AS origin_name,
+            flights.destination_airport_id, 
+            destination_airport.name AS destination_name,
+            flights.departure_date, 
+            flights.departure_time, 
+            flights.arrival_time, 
+            flights.status, 
+            flights.pilot_id, 
+            pilots.name AS pilot_name, 
+            pilots.flight_hours AS pilot_flight_time 
+
+            FROM flights 
+            JOIN airports AS origin_airport ON flights.origin_airport_id = origin_airport.airport_id 
+            JOIN airports AS destination_airport ON flights.destination_airport_id = destination_airport.airport_id 
+            JOIN pilots ON flights.pilot_id = pilots.pilot_id""")
+
+            
+
+        #Include columns name
+            column_name = [description[0] for description in cursor.description]
+            print("|".join(column_name))
             rows = cursor.fetchall()
             for row in rows:
                 print(row)
