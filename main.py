@@ -5,6 +5,92 @@ def connect_db():
     return sqlite3.connect('flight.db')
 
 
+def create_table():
+    connect = connect_db()
+    cursor = connect.cursor()
+
+    #Create airports table
+    cursor.execute("""CREATE TABLE airports(airport_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    name VARCHAR(20), 
+    country VARCHAR(20), 
+    airport_code VARCHAR(20) UNIQUE );
+ """)
+
+    #Create flights table 
+    cursor.execute("""CREATE TABLE flights ( flight_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    origin_airport_id INT, 
+    destination_airport_id INT, 
+    departure_date DATE, 
+    departure_time TIME, 
+    arrival_time TIME, 
+    status VARCHAR(20), 
+    pilot_id INTEGER, 
+    FOREIGN KEY (origin_airport_id) REFERENCES airports(airport_id), 
+    FOREIGN KEY (destination_airport_id) REFERENCES airports(airport_id), 
+    FOREIGN KEY (pilot_id) REFERENCES pilots(pilot_id) ); """)
+
+     #Create pilots table
+    cursor.execute("""CREATE TABLE pilots (pilot_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    name VARCHAR(20), 
+    flight_hours INTEGER); """)
+
+    connect.commit()
+    connect.close()
+    print("Tables have been construct")
+
+
+def populate_table():
+    connect = connect_db()
+    cursor = connect.cursor()
+
+    #Populate airports table
+    cursor.execute("""INSERT INTO airports (name, country, airport_code) VALUES ('Paris', 'France', 'CDG'), 
+    ('Bangkok', 'Thailand', 'BKK'), 
+    ('London', 'UK', 'LHR'), 
+    ('New York City', 'United States', 'JFK'), 
+    ('Tokyo', 'Japan', 'HND'), 
+    ('Singapore', 'Singapore', 'SIN'), 
+    ('Dubai', 'United Arab Emirates', 'DXB'), 
+    ('Sao Paulo', 'Brazil', 'GRU'), 
+    ('Sydney', 'Australia', 'SYD'), 
+    ('Jakarta', 'Indonesia', 'CGK'); """)
+
+    #Populate flights table
+    cursor.execute("""INSERT INTO flights (flight_id, origin_airport_id, 
+    destination_airport_id, 
+    departure_date, 
+    departure_time, 
+    arrival_time, 
+    status, pilot_id) 
+    VALUES (1, 1, 2, '2024-12-01', '10:00', '12:30', 'On Time', 1), 
+    (2, 2, 3, '2024-12-02', '14:30', '16:45', 'Delayed', 2), 
+    (3, 3, 4, '2024-12-03', '09:45', '12:00', 'Cancelled', 3), 
+    (4, 4, 5, '2024-12-04', '16:00', '18:15', 'On Time', 4), 
+    (5, 5, 6, '2024-12-05', '13:00', '15:20', 'On Time', 5), 
+    (6, 6, 7, '2024-12-06', '17:30', '20:00', 'Delayed', 6), 
+    (7, 7, 8, '2024-12-07', '08:45', '11:10', 'Cancelled', 7), 
+    (8, 8, 9, '2024-12-08', '20:00', '22:30', 'On Time', 8), 
+    (9, 9, 10, '2024-12-09', '11:00', '13:45', 'On Time', 9), 
+    (10, 10, 1, '2024-12-10', '16:30', '19:00', 'Delayed', 10); """)
+
+    #Populate pilots table
+    cursor.execute("""INSERT INTO pilots (name, flight_hours) VALUES
+    ('John Doe', 1500),
+    ('Jane Smith', 2000),
+    ('Michael Brown', 1700),
+    ('Emily White', 10000),
+    ('Jake Hadley ',20000),
+    ('Nick Diaz', 3000),
+    ('Jose Ochoa',2800),
+    ('Nick Klein', 9000),
+    ('Walt Harris', 7800),
+    ('Artem Vakhitov', 12000);
+    """)
+
+    connect.commit()
+    connect.close()
+    print("Tables have been populated")
+
 
 #This function is use to add flight
 def add_flight( origin_airport_id, destination_airport_id, departure_date, departure_time,arrival_time, status, pilot_id):
