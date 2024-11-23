@@ -10,14 +10,16 @@ def create_table():
     cursor = connect.cursor()
 
     #Create airports table
-    cursor.execute("""CREATE TABLE airports(airport_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS airports(
+    airport_id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name VARCHAR(20), 
     country VARCHAR(20), 
     airport_code VARCHAR(20) UNIQUE );
  """)
 
     #Create flights table 
-    cursor.execute("""CREATE TABLE flights ( flight_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS flights ( 
+    flight_id INTEGER PRIMARY KEY AUTOINCREMENT, 
     origin_airport_id INT, 
     destination_airport_id INT, 
     departure_date DATE, 
@@ -30,7 +32,8 @@ def create_table():
     FOREIGN KEY (pilot_id) REFERENCES pilots(pilot_id) ); """)
 
      #Create pilots table
-    cursor.execute("""CREATE TABLE pilots (pilot_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    cursor.execute("""CREATE TABLE IF NOT EXISTS pilots (
+    pilot_id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name VARCHAR(20), 
     flight_hours INTEGER); """)
 
@@ -44,48 +47,63 @@ def populate_table():
     cursor = connect.cursor()
 
     #Populate airports table
-    cursor.execute("""INSERT INTO airports (name, country, airport_code) VALUES ('Paris', 'France', 'CDG'), 
-    ('Bangkok', 'Thailand', 'BKK'), 
-    ('London', 'UK', 'LHR'), 
-    ('New York City', 'United States', 'JFK'), 
-    ('Tokyo', 'Japan', 'HND'), 
-    ('Singapore', 'Singapore', 'SIN'), 
-    ('Dubai', 'United Arab Emirates', 'DXB'), 
-    ('Sao Paulo', 'Brazil', 'GRU'), 
-    ('Sydney', 'Australia', 'SYD'), 
-    ('Jakarta', 'Indonesia', 'CGK'); """)
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('Paris', 'France', 'CDG');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('Bangkok', 'Thailand', 'BKK');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('London', 'UK', 'LHR');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('New York City', 'United States', 'JFK');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('Tokyo', 'Japan', 'HND');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('Singapore', 'Singapore', 'SIN');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('Dubai', 'United Arab Emirates', 'DXB');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('Sao Paulo', 'Brazil', 'GRU');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('Sydney', 'Australia', 'SYD');")
+    cursor.execute("INSERT OR IGNORE INTO airports (name, country, airport_code) VALUES ('Jakarta', 'Indonesia', 'CGK');")
+
 
     #Populate flights table
-    cursor.execute("""INSERT INTO flights (flight_id, origin_airport_id, 
-    destination_airport_id, 
-    departure_date, 
-    departure_time, 
-    arrival_time, 
-    status, pilot_id) 
-    VALUES (1, 1, 2, '2024-12-01', '10:00', '12:30', 'On Time', 1), 
-    (2, 2, 3, '2024-12-02', '14:30', '16:45', 'Delayed', 2), 
-    (3, 3, 4, '2024-12-03', '09:45', '12:00', 'Cancelled', 3), 
-    (4, 4, 5, '2024-12-04', '16:00', '18:15', 'On Time', 4), 
-    (5, 5, 6, '2024-12-05', '13:00', '15:20', 'On Time', 5), 
-    (6, 6, 7, '2024-12-06', '17:30', '20:00', 'Delayed', 6), 
-    (7, 7, 8, '2024-12-07', '08:45', '11:10', 'Cancelled', 7), 
-    (8, 8, 9, '2024-12-08', '20:00', '22:30', 'On Time', 8), 
-    (9, 9, 10, '2024-12-09', '11:00', '13:45', 'On Time', 9), 
-    (10, 10, 1, '2024-12-10', '16:30', '19:00', 'Delayed', 10); """)
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (1, 1, 2, '2024-12-01', '10:00', '12:30', 'On Time', 1);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (2, 2, 3, '2024-12-02', '14:30', '16:45', 'Delayed', 2);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (3, 3, 4, '2024-12-03', '09:45', '12:00', 'Cancelled', 3);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (4, 4, 5, '2024-12-04', '16:00', '18:15', 'On Time', 4);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (5, 5, 6, '2024-12-05', '13:00', '15:20', 'On Time', 5);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (6, 6, 7, '2024-12-06', '17:30', '20:00', 'Delayed', 6);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (7, 7, 8, '2024-12-07', '08:45', '11:10', 'Cancelled', 7);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (8, 8, 9, '2024-12-08', '20:00', '22:30', 'On Time', 8);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (9, 9, 10, '2024-12-09', '11:00', '13:45', 'On Time', 9);""")
+    cursor.execute("""INSERT OR IGNORE INTO flights (flight_id, origin_airport_id, destination_airport_id, departure_date, 
+                     departure_time, arrival_time, status, pilot_id) 
+                     VALUES (10, 10, 1, '2024-12-10', '16:30', '19:00', 'Delayed', 10);""")
+
+
 
     #Populate pilots table
-    cursor.execute("""INSERT INTO pilots (name, flight_hours) VALUES
-    ('John Doe', 1500),
-    ('Jane Smith', 2000),
-    ('Michael Brown', 1700),
-    ('Emily White', 10000),
-    ('Jake Hadley ',20000),
-    ('Nick Diaz', 3000),
-    ('Jose Ochoa',2800),
-    ('Nick Klein', 9000),
-    ('Walt Harris', 7800),
-    ('Artem Vakhitov', 12000);
-    """)
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('John Doe', 1500);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Jane Smith', 2000);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Michael Brown', 1700);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Emily White', 10000);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Jake Hadley', 20000);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Nick Diaz', 3000);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Jose Ochoa', 2800);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Nick Klein', 9000);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Walt Harris', 7800);")
+    cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Artem Vakhitov', 12000);")
 
     connect.commit()
     connect.close()
@@ -97,12 +115,12 @@ def add_flight( origin_airport_id, destination_airport_id, departure_date, depar
     connect = connect_db()
     cursor = connect.cursor()
 
-
-    cursor.execute("INSERT INTO flights (origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time ,status, pilot_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                   (origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time, status, pilot_id))
+    cursor.execute(f""" INSERT INTO flights (origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time, status, pilot_id)
+    VALUES ('{origin_airport_id}', '{destination_airport_id}', '{departure_date}', '{departure_time}', '{arrival_time}', '{status}', '{pilot_id}')""")
     connect.commit()
     print("Flight has been added")
     connect.close()
+
 
 #This function is use to update flight information
 def update_flight_information():
@@ -337,6 +355,8 @@ def command_line_interface():
     
     while True:
         print("\n--- Flight Management System ---")
+        print("To create a table press c")
+        print("To populate a table press p")
         print("1. Show All Destinations")
         print("2. Show All Pilots")
         print("3. Show All Flights")
@@ -348,9 +368,15 @@ def command_line_interface():
         print("9. View Flights by Criteria")
         print("10. Exit")
         
-        choice = input("Enter your choice: ").strip()
+        choice = input("Enter your choice: ").lower().strip()
 
-        if choice == "1":
+        if choice == "c":
+            create_table()
+
+        elif choice == "p":
+            populate_table()
+
+        elif choice == "1":
             connect = connect_db()
             cursor = connect.cursor()
             cursor.execute("SELECT * FROM airports")
