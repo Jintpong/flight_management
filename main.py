@@ -94,6 +94,7 @@ def populate_table():
 
 
     #Populate pilots table
+    # it keeps populating with out stopping
     cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('John Doe', 1500);")
     cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Jane Smith', 2000);")
     cursor.execute("INSERT OR IGNORE INTO pilots (name, flight_hours) VALUES ('Michael Brown', 1700);")
