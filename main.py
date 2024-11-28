@@ -349,6 +349,36 @@ def flight_by_criteria():
     else:
         print("No criteria was found")
 
+def create_new_destination():
+    connect = connect_db()
+    cursor = connect.cursor()
+    while True: 
+        print("Create a new destination")
+        city_name = input("Enter the city name of the new destination: ").strip()
+        country = input("Enter the country name of the new destination: ").strip()
+        airport_code = input("Enter the airport code for the new destination: ").strip()
+
+        #Check if the city name, country and airport code are enter
+        if not city_name or not country or not airport_code:
+            print("all the new destination information needs to be filled out")
+            continue
+
+        cursor.execute("SELECT * from airports WHERE airport_code = ?", (airport_code,))
+        if cursor.fetchone():
+            print(f"{airport_code} already exist")
+            continue
+        try:
+            sql = "INSERT INTO airports (name, country, airport_code) VALUES ('{city_name}', '{country}', '{airport_code}')"
+            cursor.execute(sql)
+            connect.commit()
+            print(f"{city_name}, {country}, {airport_code} have been created")
+            break
+        except sqlite3.Error as er:
+            print(f"'{airport_code}' already exist")
+            continue
+
+    connect.close()
+
 
 
 # This function create a command line interface
@@ -367,7 +397,8 @@ def command_line_interface():
         print("7. Pilot Schedule")
         print("8. View/Update Destination Information")
         print("9. View Flights by Criteria")
-        print("10. Exit")
+        print("10. Create New Destination")
+        print("11. Exit")
         
         choice = input("Enter your choice: ").lower().strip()
 
@@ -495,8 +526,11 @@ def command_line_interface():
 
         elif choice == "9":
             flight_by_criteria()
-        
+
         elif choice == "10":
+            create_new_destination()
+        
+        elif choice == "11":
             print("Thank you")
             break
         
