@@ -128,8 +128,23 @@ def update_flight_information():
     connect = connect_db()
     cursor = connect.cursor()
 
-    
-    flight_id = input("Enter the flight ID to update: ").strip()
+    print("Available Flight ID: ")
+    cursor.execute("""SELECT flights.flight_id,origin_airport.name AS origin_name, destination_airport.name AS destination_name
+     FROM flights
+     JOIN airports AS origin_airport ON flights.origin_airport_id = origin_airport.airport_id
+     JOIN airports AS destination_airport ON flights.destination_airport_id = destination_airport.airport_id""")
+
+    flights = cursor.fetchall()
+    for i in flights:
+        print(f"Flight ID: {i[0]}, Origin: {i[1]}, Destination: {i[2]}")
+
+    while True:
+        flight_id = input("Enter the flight ID to update: ").strip()
+        if flight_id.isdigit():
+            flight_id = int(flight_id)
+            break
+        else:
+            print("Flight ID have to be a number")
 
     update_version = []
     value = []
@@ -139,7 +154,13 @@ def update_flight_information():
     origin_airports = cursor.fetchall()
     for i in origin_airports:
         print(f"ID: {i[0]}, Name: {i[1]}")
-    new_origin_airport_id = input("Enter a new origin airport ID : ").strip()
+    while True:
+        new_origin_airport_id = input("Enter a new origin airport ID : ").strip()
+        if new_origin_airport_id.isdigit():
+            new_origin_airport_id = int(new_origin_airport_id)
+            break
+        else:
+            print("Origin Airport ID must be a number")
 
     print("Available Destination Airport: ")
     cursor.execute("SELECT airport_id, name FROM airports")
