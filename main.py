@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 # Connect to the database
 def connect_db():
@@ -236,13 +237,26 @@ def assign_pilot():
     flight = cursor.fetchall()
     for i in flight:
         print(f"The available flight ID are: {i[0]}")
-    flight_id = input("Enter the flight id you want to assign the pilot: ").strip()
+
+    while True:
+        flight_id = input("Enter the flight id you want to assign the pilot: ").strip()
+        if flight_id.isdigit():
+            flight_id = int(flight_id)
+            break
+        else:
+            print("Flight ID have to be a number")
 
     cursor.execute("SELECT pilot_id, name, flight_hours FROM pilots")
     pilot = cursor.fetchall()
     for i in pilot:
         print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")
-    pilot_id = input("Enter the pilot id: ").strip()
+    while True:
+        pilot_id = input("Enter the pilot id: ").strip()
+        if pilot_id.isdigit():
+            pilot_id = int(pilot_id)
+            break
+        else:
+            print("Pilot ID have to be a number")
 
 
     #Check if flight id exist
@@ -504,14 +518,15 @@ def command_line_interface():
             connect = connect_db()
             cursor = connect.cursor()
             cursor.execute("SELECT * FROM airports")
-            
-            #Include columns name
-            column_name = [description[0] for description in cursor.description]
-            print("|".join(column_name))
 
-            rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            airports = cursor.fetchall()
+
+            if airports:
+                columns = ["Airport ID", "City Name", "Country", "Airport Code"]
+            df = pd.DataFrame(airports, columns = columns)
+            print(df)
+            
+
             connect.close()
 
         #Display all the pilots 
@@ -519,15 +534,15 @@ def command_line_interface():
             connect = connect_db()
             cursor = connect.cursor()
             cursor.execute("SELECT * FROM pilots")
+            pilot = cursor.fetchall()
 
-            #Include columns name
-            column_name = [description[0] for description in cursor.description]
-            print("|".join(column_name))
+            if pilot:
+                columns = ["Pilot ID", "Name", "Flight Hours"]
+
+            df = pd.DataFrame(pilot, columns = columns)
+            print(df)
 
 
-            rows = cursor.fetchall()
-            for row in rows:
-                print(row)
             connect.close()
 
         #Display all the flights 
@@ -554,13 +569,16 @@ def command_line_interface():
             JOIN pilots ON flights.pilot_id = pilots.pilot_id""")
 
             
-
-        #Include columns name
-            column_name = [description[0] for description in cursor.description]
-            print("|".join(column_name))
-            rows = cursor.fetchall()
-            for row in rows:
-                print(row)
+            flight = cursor.fetchall()
+            columns = [
+                "Flight ID", "Origin Airport ID", "Origin Name", 
+                "Destination Airport ID", "Destination Name", 
+                "Departure Date", "Departure Time", "Arrival Time", 
+                "Status", "Pilot ID", "Pilot Name", "Pilot Flight Time"
+            ]
+            if flight:
+                df = pd.DataFrame(flight, columns = columns)
+            print(df)
             connect.close()
         
         elif choice == "4":
