@@ -167,7 +167,13 @@ def update_flight_information():
     origin_airports = cursor.fetchall()
     for i in origin_airports:
         print(f"ID: {i[0]}, Name: {i[1]}")
-    new_destination_airport_id = input("Enter a new destination airport ID : ").strip()
+    while True:
+        new_destination_airport_id = input("Enter a new destination airport ID : ").strip()
+        if new_destination_airport_id.isdigit():
+            new_destination_airport_id = int(new_destination_airport_id)
+            break
+        else:
+            print("Destination Airport ID must be a number")
 
 
     new_departure_date = input("Enter a new departure date (YYYY-MM-DD) : ").strip()
