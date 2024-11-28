@@ -264,7 +264,7 @@ def pilot_schedule():
 
 
 def view_update_destination():
-    user = input ("Press v to view and u to update: ").lower().strip()
+    user = input("Press v to view and u to update: ").lower().strip()
     connect = connect_db()
     cursor = connect.cursor()
 
@@ -389,6 +389,60 @@ def create_new_destination():
 
     connect.close()
 
+def delete_information():
+    connect = connect_db()
+    cursor = connect.cursor()
+    user_input = input("Press d to delete formation about the destination\n Press f to delete information about the flights\n Press p to delete information about the pilots\n Enter: ").strip().lower()
+
+    if user_input == "d":
+        cursor.execute("SELECT airport_id, name FROM airports")
+        origin_airports = cursor.fetchall()
+        for i in origin_airports:
+            print(f"ID: {i[0]}, Name: {i[1]}")  
+        destination_id = input("Enter the destination ID to delete: ")
+        cursor.execute("SELECT * FROM airports WHERE airport_id = ?", (destination_id,))
+        destination = cursor.fetchone()
+        if not destination:
+            print(f"No destination with ID '{destination_id}'")
+        else:
+            cursor.execute("DELETE FROM airports WHERE airport_id = ?", (destination_id,))
+            connect.commit()
+            print(f"'{destination_id} has been deleted'")
+
+    if user_input == "f":
+        cursor.execute("""SELECT flights.flight_id, origin_airport.name AS origin_name , destination_airport.name AS destination_name FROM flights
+        JOIN airports AS origin_airport ON flights.origin_airport_id = origin_airport.airport_id
+        JOIN airports AS destination_airport ON flights.destination_airport_id = destination_airport.airport_id """)
+        flight = cursor.fetchall()
+        for i in flight:
+            print(f"ID: {i[0]}, Origin: {i[1]}, Destination: {i[2]}")  
+        flight_id = input("Enter the flight ID to delete: ")
+        cursor.execute("SELECT * FROM flights WHERE flight_id = ?", (flight_id,))
+        flight = cursor.fetchone()
+        if not flight:
+            print(f"No flight with ID '{flight_id}'")
+        else:
+            cursor.execute("DELETE FROM flights WHERE flight_id = ?", (flight_id,))
+            connect.commit()
+            print(f"Flight ID: '{flight_id} has been deleted'")
+
+    if user_input == "p":
+        cursor.execute("SELECT pilot_id, name , flight_hours FROM pilots")
+        pilot = cursor.fetchall()
+        for i in pilot:
+            print(f"ID: {i[0]}, Name: {i[1]}, Flight Hour: {i[2]}")  
+        pilot_id = input("Enter the pilot ID to delete: ")
+        cursor.execute("SELECT * FROM pilots WHERE pilot_id = ?", (pilot_id,))
+        pilot = cursor.fetchone()
+        if not pilot:
+            print(f"No pilot with ID '{pilot_id}'")
+        else:
+            cursor.execute("DELETE FROM pilots WHERE pilot_id = ?", (pilot_id,))
+            connect.commit()
+            print(f"Pilot ID: '{pilot_id}' has been deleted'")
+
+
+
 
 
 # This function create a command line interface
@@ -408,7 +462,8 @@ def command_line_interface():
         print("8. View/Update Destination Information")
         print("9. View Flights by Criteria")
         print("10. Create New Destination")
-        print("11. Exit")
+        print("11. Delete Information")
+        print("12. Exit")
         
         choice = input("Enter your choice: ").lower().strip()
 
@@ -539,8 +594,11 @@ def command_line_interface():
 
         elif choice == "10":
             create_new_destination()
-        
+
         elif choice == "11":
+            delete_information()
+        
+        elif choice == "12":
             print("Thank you")
             break
         
