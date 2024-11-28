@@ -352,30 +352,40 @@ def flight_by_criteria():
 def create_new_destination():
     connect = connect_db()
     cursor = connect.cursor()
+
+    print("Create a new destination")
     while True: 
-        print("Create a new destination")
         city_name = input("Enter the city name of the new destination: ").strip()
-        country = input("Enter the country name of the new destination: ").strip()
-        airport_code = input("Enter the airport code for the new destination: ").strip()
-
-        #Check if the city name, country and airport code are enter
-        if not city_name or not country or not airport_code:
-            print("all the new destination information needs to be filled out")
-            continue
-
-        cursor.execute("SELECT * from airports WHERE airport_code = ?", (airport_code,))
-        if cursor.fetchone():
-            print(f"{airport_code} already exist")
-            continue
-        try:
-            sql = "INSERT INTO airports (name, country, airport_code) VALUES ('{city_name}', '{country}', '{airport_code}')"
-            cursor.execute(sql)
-            connect.commit()
-            print(f"{city_name}, {country}, {airport_code} have been created")
+        if city_name.isalpha():
             break
-        except sqlite3.Error as er:
-            print(f"'{airport_code}' already exist")
-            continue
+        print("City name needs to be an alphabetic character")
+    while True:
+        country = input("Enter the country name of the new destination: ").strip()
+        if country.isalpha():
+            break
+        print("City name needs to be an alphabetic character")
+
+    while True:
+        airport_code = input("Enter the airport code for the new destination: ").strip().upper()
+        if airport_code.isalpha():
+            break
+        print("City name needs to be an alphabetic character")
+
+    #Check if the city name, country and airport code are enter
+    if not city_name or not country or not airport_code:
+        print("All the new destination information needs to be filled out")
+        return
+
+    cursor.execute("SELECT * from airports WHERE airport_code = ?", (airport_code,))
+    if cursor.fetchone():
+        print(f"'{airport_code}' already exist")
+        return
+
+
+    cursor.execute("INSERT INTO airports (name, country, airport_code) VALUES (?,?,?)", (city_name, country, airport_code))
+    connect.commit()
+    print(f"{city_name}, {country}, {airport_code} have been created")
+
 
     connect.close()
 
