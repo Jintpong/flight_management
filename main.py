@@ -191,7 +191,13 @@ def update_flight_information():
     pilot = cursor.fetchall()
     for i in pilot:
         print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")
-    new_pilot_id = input("Enter a new pilot ID : ").strip()
+    while True:
+        new_pilot_id = input("Enter a new pilot ID: ").strip()
+        if new_pilot_id.isdigit():
+            new_pilot_id = int(new_pilot_id)
+            break
+        else:
+            print("Pilot ID have to be a number")
 
     # Check each input and append the corresponding SQL clause and value
     if new_origin_airport_id:
@@ -293,8 +299,14 @@ def pilot_schedule():
     pilot = cursor.fetchall()
 
     for i in pilot:
-        print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")    
-    pilot_id = input("Enter the pilot id to check the schedule: ").strip()
+        print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")
+    while True:
+        pilot_id = input("Enter the pilot id to check the schedule: ").strip()
+        if pilot_id.isdigit():
+            pilot_id = int(pilot_id)
+            break
+        else:
+            print("Pilot ID have to be a number")
 
     cursor.execute("SELECT flight_id, origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time, status FROM flights WHERE pilot_id = ? ORDER BY departure_date, departure_time", (pilot_id,))
     schedule = cursor.fetchall()
@@ -305,7 +317,12 @@ def pilot_schedule():
 
 
 def view_update_destination():
-    user = input("Press v to view and u to update: ").lower().strip()
+    while True:
+        user = input("Press v to view and u to update: ").lower().strip()
+        if user in ['u', 'v']:
+            break
+        else:
+            print("Please enter 'v' to view or 'u' to update")
     connect = connect_db()
     cursor = connect.cursor()
 
@@ -314,18 +331,23 @@ def view_update_destination():
         cursor.execute("SELECT airport_id, name FROM airports")
         origin_airports = cursor.fetchall()
         for i in origin_airports:
-            print(f"ID: {i[0]}, Name: {i[1]}")        
-        destination_airport_id = input("Enter the destination airport id: ")
+            print(f"ID: {i[0]}, Name: {i[1]}")
+        while True:
+            destination_airport_id = input("Enter the destination airport id: ").lower().strip()
+            if destination_airport_id.isdigit():
+                destination_airport_id = int(destination_airport_id)
+                break
+            else:
+                print("Destination Airport ID have to be a number")
         cursor.execute("SELECT * FROM airports WHERE airport_id = ?", (destination_airport_id,))
-        destination_info = cursor.fetchone()
+        destination_info = cursor.fetchall()
 
-        if destination_info:
-            print(f"Airport ID: {destination_info[0]}")
-            print(f"Destination Name: {destination_info[1]}")
-            print(f"Country: {destination_info[2]}")
-            print(f"Destination Airport Code: {destination_info[3]}")
-        else:
-            print("No destination airport ID was found")
+        if not destination_info:
+            print(f"No destination with Airport ID: {destination_info}")
+        columns = [description[0] for description in cursor.description]
+        info = pd.DataFrame(destination_info, columns=columns)
+        print(info)
+
 
     elif user == 'u':
         print("Available Destination Airport: ")
@@ -333,13 +355,35 @@ def view_update_destination():
         origin_airports = cursor.fetchall()
         for i in origin_airports:
             print(f"ID: {i[0]}, Name: {i[1]}")        
-        destination_airport_id = input("Enter the Destination airport ID to update: ").lower().strip()
+        while True:
+            destination_airport_id = input("Enter the destination airport id: ").lower().strip()
+            if destination_airport_id.isdigit():
+                destination_airport_id = int(destination_airport_id)
+                break
+            else:
+                print("Destination Airport ID have to be a number")
         cursor.execute("SELECT * FROM airports WHERE airport_id = ?", (destination_airport_id,))
         destination = cursor.fetchone()
 
-        new_name = input("Enter the new city name: ").strip()
-        new_country = input("Enter the new country: ").strip()
-        new_code = input("Enter the new code: ").strip()
+        while True:
+            new_name = input("Enter the new city name: ").strip()
+            if new_name.isalpha():
+                break
+            else:
+                print("New City Name have to be an alphabet")
+
+        while True:
+            new_country = input("Enter the new country: ").strip()
+            if new_country.isalpha():
+                break
+            else:
+                print("New Country Name have to be an alphabet")
+        while True:
+            new_code = input("Enter the new code: ").strip()
+            if new_code.isalpha():
+                break
+            else:
+                print("New Code have to be an alphabet")
 
         update = []
         value = []
@@ -371,7 +415,12 @@ def flight_by_criteria():
     flight_information = ['flight_id', 'origin_airport_id','destination_airport_id', 'departure_date', 'departure_time','arrival_time', 'status', 'pilot_id']
     print("The available criteria includes: 'flight_id','origin_airport_id' ,'destination_airport_id', 'departure_date', 'departure_time','arrival_time', 'status', 'pilot_id")
 
-    criteria = input("Enter the criteria: ").strip()
+    while True:
+        criteria = input("Enter the criteria: ").strip()
+        if criteria.isalpha():
+            break
+        else:
+            print("Criteria have to be enter with the exact name")
 
     if criteria not in flight_information:
         print("The criteria is invalid") 
@@ -433,14 +482,25 @@ def create_new_destination():
 def delete_information():
     connect = connect_db()
     cursor = connect.cursor()
-    user_input = input("Press d to delete formation about the destination\n Press f to delete information about the flights\n Press p to delete information about the pilots\n Enter: ").strip().lower()
+    while True:
+        user_input = input("Press d to delete formation about the destination\n Press f to delete information about the flights\n Press p to delete information about the pilots\n Enter: ").strip().lower()
+        if user_input in ["d", "f", "p"]:
+            break
+        else:
+            print("Input must be d, f or p")
 
     if user_input == "d":
         cursor.execute("SELECT airport_id, name FROM airports")
         origin_airports = cursor.fetchall()
         for i in origin_airports:
-            print(f"ID: {i[0]}, Name: {i[1]}")  
-        destination_id = input("Enter the destination ID to delete: ")
+            print(f"ID: {i[0]}, Name: {i[1]}")
+        while True:
+            destination_id = input("Enter the destination ID to delete: ")
+            if destination_id.isdigit():
+                destination_id = int(destination_id)
+                break
+            else:
+                print("Destination ID have to be a number")
         cursor.execute("SELECT * FROM airports WHERE airport_id = ?", (destination_id,))
         destination = cursor.fetchone()
         if not destination:
@@ -456,8 +516,14 @@ def delete_information():
         JOIN airports AS destination_airport ON flights.destination_airport_id = destination_airport.airport_id """)
         flight = cursor.fetchall()
         for i in flight:
-            print(f"ID: {i[0]}, Origin: {i[1]}, Destination: {i[2]}")  
-        flight_id = input("Enter the flight ID to delete: ")
+            print(f"ID: {i[0]}, Origin: {i[1]}, Destination: {i[2]}")
+        while True:
+            flight_id = input("Enter the flight ID to delete: ")
+            if flight_id.isdigit():
+                flight_id = int(flight_id)
+                break
+            else:
+                print("Flight ID have to be a number")
         cursor.execute("SELECT * FROM flights WHERE flight_id = ?", (flight_id,))
         flight = cursor.fetchone()
         if not flight:
@@ -472,7 +538,13 @@ def delete_information():
         pilot = cursor.fetchall()
         for i in pilot:
             print(f"ID: {i[0]}, Name: {i[1]}, Flight Hour: {i[2]}")  
-        pilot_id = input("Enter the pilot ID to delete: ")
+        while True:
+            pilot_id = input("Enter the pilot ID to delete: ")
+            if pilot_id.isdigit():
+                pilot_id = int(pilot_id)
+                break
+            else:
+                print("Pilot ID have to be a number")
         cursor.execute("SELECT * FROM pilots WHERE pilot_id = ?", (pilot_id,))
         pilot = cursor.fetchone()
         if not pilot:
@@ -481,8 +553,6 @@ def delete_information():
             cursor.execute("DELETE FROM pilots WHERE pilot_id = ?", (pilot_id,))
             connect.commit()
             print(f"Pilot ID: '{pilot_id}' has been deleted'")
-
-
 
 
 
@@ -580,18 +650,24 @@ def command_line_interface():
                 df = pd.DataFrame(flight, columns = columns)
             print(df)
             connect.close()
-        
+
+
         elif choice == "4":
             connect = connect_db()
             cursor = connect.cursor()
-            #flight_id = int(input("Enter flight ID: ").strip())
-            #Show the available origin airport
             print("Available Origin Airport: ")
             cursor.execute("SELECT airport_id, name FROM airports")
             origin_airports = cursor.fetchall()
             for i in origin_airports:
                 print(f"ID: {i[0]}, Name: {i[1]}")
-            origin_airport_id = int(input("Enter origin airport ID: ").strip())
+
+            while True:
+                origin_airport_id = input("Enter origin airport ID: ").strip()
+                if origin_airport_id.isdigit():
+                    origin_airport_id = int(origin_airport_id)
+                    break
+                else:
+                    print("Origin Airport ID have to be a number")
 
             #Show the available destination airport
             print("Available Destination Airport: ")
@@ -599,7 +675,13 @@ def command_line_interface():
             origin_airports = cursor.fetchall()
             for i in origin_airports:
                 print(f"ID: {i[0]}, Name: {i[1]}")
-            destination_airport_id = int(input("Enter destination airport ID: ").strip())
+            while True:
+                destination_airport_id = input("Enter destination airport ID: ").strip()
+                if destination_airport_id.isdigit():
+                    destination_airport_id = int(destination_airport_id)
+                    break
+                else:
+                    print("Destination Airport ID have to be a number")
 
 
             departure_date = input("Enter departure date (YYYY-MM-DD): ".strip())
@@ -618,7 +700,13 @@ def command_line_interface():
             pilot = cursor.fetchall()
             for i in pilot:
                 print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")
-            pilot_id = int(input("Enter pilot ID: ").strip())
+            while True:
+                pilot_id = input("Enter pilot ID: ").strip()
+                if pilot_id.isdigit():
+                    pilot_id = int(pilot_id)
+                    break
+                else:
+                    print("Pilot ID have to be a number")
             add_flight(origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time, status, pilot_id)
             
         
