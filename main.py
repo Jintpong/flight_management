@@ -591,6 +591,7 @@ def command_line_interface():
 
             airports = cursor.fetchall()
 
+            columns = [description[0] for description in cursor.description]
             if airports:
                 columns = ["Airport ID", "City Name", "Country", "Airport Code"]
             df = pd.DataFrame(airports, columns = columns)
@@ -647,8 +648,8 @@ def command_line_interface():
                 "Status", "Pilot ID", "Pilot Name", "Pilot Flight Time"
             ]
             if flight:
-                df = pd.DataFrame(flight, columns = columns)
-            print(df)
+                info = pd.DataFrame(flight, columns = columns)
+            print(info.to_string(index=False, max_rows = 20))
             connect.close()
 
 
