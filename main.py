@@ -273,7 +273,7 @@ def assign_pilot():
         return 
 
     #Check if pilot  id exist
-    cursor.execute("SELECT flight_id FROM flights WHERE pilot_id = ?", (pilot_id,))
+    cursor.execute("SELECT pilot_id FROM pilots WHERE pilot_id = ?", (pilot_id,))
     if cursor.fetchone() is None: 
         print(f"The pilot id of {pilot_id} is invalid")
         connect.close()
@@ -310,9 +310,14 @@ def pilot_schedule():
 
     cursor.execute("SELECT flight_id, origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_time, status FROM flights WHERE pilot_id = ? ORDER BY departure_date, departure_time", (pilot_id,))
     schedule = cursor.fetchall()
-    for flight in schedule:
-        print(f"Flight ID: {flight[0]}, Origin Airport ID: {flight[1]},Destination Aiport ID {flight[2]},  Departure Date: {flight[3]}, Departure Time: {flight[4]}, Arrival Time: {flight[5]}, Status: {flight[6]}")
-
+    if schedule:
+        info = pd.DataFrame(schedule, columns=[
+            "Flight ID", "Origin Airport ID", "Destination Airport ID", 
+            "Departure Date", "Departure Time", "Arrival Time", "Status"
+        ])
+        print(info.to_string(index=False))
+    else:
+        print(f"No flights scheduled for Pilot ID {pilot_id}.")
     connect.close()
 
 
@@ -413,31 +418,53 @@ def flight_by_criteria():
     connect = connect_db()
     cursor = connect.cursor()
     flight_information = ['flight_id', 'origin_airport_id','destination_airport_id', 'departure_date', 'departure_time','arrival_time', 'status', 'pilot_id']
-    print("The available criteria includes: 'flight_id','origin_airport_id' ,'destination_airport_id', 'departure_date', 'departure_time','arrival_time', 'status', 'pilot_id")
+    flight_info = pd.DataFrame(flight_information, columns=["Criteria"])
+    print(flight_info.to_string(index=False))
 
-    while True:
-        criteria = input("Enter the criteria: ").strip()
-        if criteria.isalpha():
-            break
-        else:
-            print("Criteria have to be enter with the exact name")
+
+    criteria = input("Enter the criteria: ").strip().lower()
 
     if criteria not in flight_information:
         print("The criteria is invalid") 
         connect.close()
         return
 
+    if criteria == 'origin_airport_id':
+        cursor.execute("SELECT DISTINCT flights.origin_airport_id, airports.name FROM flights JOIN airports ON flights.origin_airport_id = airports.airport_id")
+    elif criteria == 'destination_airport_id':
+        cursor.execute("SELECT DISTINCT flights.destination_airport_id, airports.name FROM flights JOIN airports ON flights.destination_airport_id = airports.airport_id")
+    elif criteria == 'pilot_id':
+        cursor.execute("SELECT DISTINCT flights.pilot_id, pilots.name FROM flights JOIN pilots ON flights.pilot_id = pilots.pilot_id")
+    else:
+        cursor.execute(f"SELECT DISTINCT {criteria} FROM flights")
+
+    info = cursor.fetchall()
+
+    if info:
+        if criteria in ['origin_airport_id', 'destination_airport_id']:
+            for value in info:
+                print(f"ID: {value[0]}, Name: {value[1]}")
+        elif criteria == 'pilot_id':
+            for value in info:
+                print(f"ID: {value[0]}, Name: {value[1]}")
+        else:
+            for value in info:
+                print(f"{value[0]}")
+
     value = input(f"Enter the value for {criteria}: ").strip()
     query = (f"SELECT * FROM flights where {criteria} = ?")
     cursor.execute(query,(value,))
     flights = cursor.fetchall()
-    connect.close()
+    
 
     if flights:
-        for flight in flights:
-            print(flight)
+        columns = [description[0] for description in cursor.description]
+        df = pd.DataFrame(flights, columns=columns)
+        print(df.to_string(index=False))
     else:
         print("No criteria was found")
+
+    connect.close()
 
 def create_new_destination():
     connect = connect_db()
@@ -483,7 +510,7 @@ def delete_information():
     connect = connect_db()
     cursor = connect.cursor()
     while True:
-        user_input = input("Press d to delete formation about the destination\n Press f to delete information about the flights\n Press p to delete information about the pilots\n Enter: ").strip().lower()
+        user_input = input("Press d to delete information about the destination\n Press f to delete information about the flights\n Press p to delete information about the pilots\n Enter: ").strip().lower()
         if user_input in ["d", "f", "p"]:
             break
         else:
