@@ -581,7 +581,37 @@ def delete_information():
             connect.commit()
             print(f"Pilot ID: '{pilot_id}' has been deleted'")
 
+def add_new_pilot():
+    connect = connect_db()
+    cursor = connect.cursor()
 
+    print("Add a New Pilot")
+    while True: 
+        pilot_name = input("Enter the name of the pilot: ").strip()
+        if pilot_name.replace(" ", "").isalpha():  
+            break
+        print("Pilot name must consist of alphabetic characters only.")
+
+    while True:
+        flight_hour = input("Enter the Pilot Flight Hour: ").strip()
+        if flight_hour.isdigit():
+            flight_hour = int(flight_hour)
+            break
+        else:
+            print("Flight Hour have to be a number")
+
+
+    
+    if not pilot_name or flight_hour is None:
+        print("All the pilot information needs to be filled out")
+        return
+    
+    cursor.execute(" INSERT INTO pilots (name, flight_hours) VALUES (?, ?) ", (pilot_name, flight_hour))
+    connect.commit()
+    print(f"'{pilot_name}' with {flight_hour} flight hours has been added")
+
+
+    connect.close()
 
 # This function create a command line interface
 def command_line_interface():
@@ -593,15 +623,16 @@ def command_line_interface():
         print("1. Show All Destinations")
         print("2. Show All Pilots")
         print("3. Show All Flights")
-        print("4. Add a new Flight")
+        print("4. Add a New Flight")
         print("5. Update Flight Information")
         print("6. Assign Pilot to Flight")
         print("7. Pilot Schedule")
         print("8. View/Update Destination Information")
         print("9. View Flights by Criteria")
         print("10. Create New Destination")
-        print("11. Delete Information")
-        print("12. Exit")
+        print("11. Add New Pilot")
+        print("12. Delete Information")
+        print("13. Exit")
         
         choice = input("Enter your choice: ").lower().strip()
 
@@ -757,9 +788,12 @@ def command_line_interface():
             create_new_destination()
 
         elif choice == "11":
+            add_new_pilot()
+
+        elif choice == "12":
             delete_information()
         
-        elif choice == "12":
+        elif choice == "13":
             print("Thank you")
             break
         
