@@ -239,10 +239,18 @@ def assign_pilot():
     connect = connect_db()
     cursor = connect.cursor()
 
-    cursor.execute("SELECT flight_id FROM flights")
+    cursor.execute("""
+        SELECT flights.flight_id, 
+            origin_airports.name AS origin_name, 
+            destination_airports.name AS destination_name 
+        FROM flights
+        JOIN airports AS origin_airports ON flights.origin_airport_id = origin_airports.airport_id
+        JOIN airports AS destination_airports ON flights.destination_airport_id = destination_airports.airport_id
+    """)
     flight = cursor.fetchall()
     for i in flight:
-        print(f"The available flight ID are: {i[0]}")
+        flight_id, origin_name, destination_name = i
+        print(f"The available flight ID are: {flight_id}, Origin Airport: {origin_name}, Destination: {destination_name} ")
 
     while True:
         flight_id = input("Enter the flight id you want to assign the pilot: ").strip()
