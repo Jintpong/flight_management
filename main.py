@@ -299,7 +299,7 @@ def pilot_schedule():
     pilot = cursor.fetchall()
 
     for i in pilot:
-        print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Fligh Experience Hour: {i[2]}")
+        print(f"The available pilots are ID: {i[0]}, Name: {i[1]}, Flight Experience Hour: {i[2]}")
     while True:
         pilot_id = input("Enter the pilot id to check the schedule: ").strip()
         if pilot_id.isdigit():
